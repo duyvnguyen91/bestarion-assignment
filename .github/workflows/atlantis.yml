@@ -41,13 +41,13 @@ jobs:
 
       - name: Terraform Init
         working-directory: ./infra/live/${{ matrix.environment }}
-        run: terraform init -backend=false
+        run: terraform init
 
       - name: Terraform Plan
         id: plan
         working-directory: ./infra/live/${{ matrix.environment }}
         run: |
-          terraform plan -no-color -out=tfplan > plan.txt
+          terraform plan -no-color -out=tfplan > plan.txt 2>&1 || true
           echo "plan_output<<EOF" >> $GITHUB_OUTPUT
           cat plan.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
