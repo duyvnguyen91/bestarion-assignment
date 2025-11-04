@@ -55,9 +55,34 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const plan = fs.readFileSync('infra/live/${process.env.ENVIRONMENT}/plan.txt', 'utf8');
-            const body = `#### Terraform Plan for \`${process.env.ENVIRONMENT}\`\n\n<details><summary>Show Plan</summary>\n\n\`\`\`\n${plan}\n\`\`\`\n\n</details>`;
-            github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body });
+            const core = require('@actions/core');
+            const planPath = `${process.env.GITHUB_WORKSPACE}/infra/live/${process.env.ENVIRONMENT}/plan.txt`;
+
+            let plan;
+            try {
+              plan = fs.readFileSync(planPath, 'utf8');
+            } catch {
+              core.warning(`No plan file found for ${process.env.ENVIRONMENT}`);
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: context.issue.number,
+                body: `⚠️ No Terraform plan found for \`${process.env.ENVIRONMENT}\`. Did the plan step fail?`,
+              });
+              return;
+            }
+
+            plan = plan.length > 60000 ? plan.slice(0, 60000) + '\n\n... (truncated) ...' : plan;
+
+            const body =
+              `#### Terraform Plan for \`${process.env.ENVIRONMENT}\`\n` +
+              `<details><summary>Show Plan</summary>\n\n\`\`\`\n${plan}\n\`\`\`\n\n</details>\n\n` +
+              `_Pusher: @${context.actor}_`;
+
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.issue.number,
+              body,
+            });
 
   apply-prod:
     name: Apply prod
