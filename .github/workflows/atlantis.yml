@@ -55,14 +55,13 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const core = require('@actions/core');
             const planPath = `${process.env.GITHUB_WORKSPACE}/infra/live/${process.env.ENVIRONMENT}/plan.txt`;
 
             let plan;
             try {
               plan = fs.readFileSync(planPath, 'utf8');
             } catch {
-              core.warning(`No plan file found for ${process.env.ENVIRONMENT}`);
+              core.warning(`No plan file found for ${process.env.ENVIRONMENT} at ${planPath}`);
               await github.rest.issues.createComment({
                 ...context.repo,
                 issue_number: context.issue.number,
@@ -71,7 +70,7 @@ jobs:
               return;
             }
 
-            plan = plan.length > 60000 ? plan.slice(0, 60000) + '\n\n... (truncated) ...' : plan;
+            if (plan.length > 60000) plan = plan.slice(0, 60000) + '\n\n... (truncated) ...';
 
             const body =
               `#### Terraform Plan for \`${process.env.ENVIRONMENT}\`\n` +
