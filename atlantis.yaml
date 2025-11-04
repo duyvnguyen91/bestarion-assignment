@@ -1,0 +1,43 @@
+version: 3
+projects:
+  - name: dev
+    dir: infra/live/dev
+    workflow: default
+    autoplan:
+      when_modified:
+        - "*.tf"
+        - "*.tfvars"
+        - "../../modules/**/*.tf"
+      enabled: true
+    apply_requirements:
+      - approved
+    workflow: default
+
+  - name: prod
+    dir: infra/live/prod
+    workflow: default
+    autoplan:
+      when_modified:
+        - "*.tf"
+        - "*.tfvars"
+        - "../../modules/**/*.tf"
+      enabled: true
+    apply_requirements:
+      - approved
+    workflow: default
+
+workflows:
+  default:
+    plan:
+      steps:
+        - init:
+            extra_args: ["-lock=false"]
+        - plan:
+            extra_args: ["-lock=false"]
+    apply:
+      steps:
+        - init:
+            extra_args: ["-lock=false"]
+        - apply:
+            extra_args: ["-lock=false"]
+
