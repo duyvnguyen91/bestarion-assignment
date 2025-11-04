@@ -55,18 +55,23 @@ jobs:
       - name: Comment Plan
         uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
+        env:
+          ENVIRONMENT: ${{ matrix.environment }}
+          PLAN_OUTPUT: ${{ steps.plan.outputs.plan_output }}
+          ACTOR: ${{ github.actor }}
+          EVENT_NAME: ${{ github.event_name }}
         with:
           script: |
-            const output = `#### Terraform Plan for \`${{ matrix.environment }}\`
+            const output = `#### Terraform Plan for \`${process.env.ENVIRONMENT}\`
             <details><summary>Show Plan</summary>
             
             \`\`\`
-            ${{ steps.plan.outputs.plan_output }}
+            ${process.env.PLAN_OUTPUT}
             \`\`\`
             
             </details>
             
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            *Pusher: @${process.env.ACTOR}, Action: \`${process.env.EVENT_NAME}\`*`;
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -115,13 +120,17 @@ jobs:
 
       - name: Comment Apply Result
         uses: actions/github-script@v7
+        env:
+          ENVIRONMENT: ${{ matrix.environment }}
+          ACTOR: ${{ github.actor }}
+          EVENT_NAME: ${{ github.event_name }}
         with:
           script: |
-            const output = `#### Terraform Apply for \`${{ matrix.environment }}\` :white_check_mark:
+            const output = `#### Terraform Apply for \`${process.env.ENVIRONMENT}\` :white_check_mark:
             
             Applied successfully!
             
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            *Pusher: @${process.env.ACTOR}, Action: \`${process.env.EVENT_NAME}\`*`;
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
