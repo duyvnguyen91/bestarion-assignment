@@ -19,18 +19,18 @@ resource "random_password" "db" {
   upper       = true
 }
 
-resource "aws_secretsmanager_secret" "db_credentials" {
-  name = "${local.name}/db-credentials"
-  tags = local.tags
-}
+# resource "aws_secretsmanager_secret" "db_credentials" {
+#   name = "${local.name}/db-credentials"
+#   tags = local.tags
+# }
 
-resource "aws_secretsmanager_secret_version" "db_credentials" {
-  secret_id = aws_secretsmanager_secret.db_credentials.id
-  secret_string = jsonencode({
-    username = var.db_username
-    password = random_password.db.result
-  })
-}
+# resource "aws_secretsmanager_secret_version" "db_credentials" {
+#   secret_id = aws_secretsmanager_secret.db_credentials.id
+#   secret_string = jsonencode({
+#     username = var.db_username
+#     password = random_password.db.result
+#   })
+# }
 
 module "vpc" {
   source = "../../modules/vpc"
