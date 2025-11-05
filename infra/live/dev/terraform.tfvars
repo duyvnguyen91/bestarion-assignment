@@ -12,6 +12,6 @@ private_subnets = ["10.10.20.0/24", "10.10.21.0/24", "10.10.22.0/24"]
 node_group_min_size        = 1
 node_group_max_size        = 3
 node_group_desired_size    = 1
-node_group_instance_types  = ["t3.small"]
+node_group_instance_types  = ["t3.medium"]
 node_group_capacity_type   = "SPOT"
 
